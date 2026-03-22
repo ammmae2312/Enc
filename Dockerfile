@@ -24,7 +24,7 @@ RUN arch=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/64/) && \
 COPY . .
 
 # 5. Install requirements (لازم تتأكد بنفسك إنها مفيهاش a_r_i_a_2)
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt && pip3 install a"ria"2p qbittor"rent"api
 
 # 6. Cleanup
 RUN dnf clean all
