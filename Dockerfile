@@ -10,7 +10,7 @@ ENV TERM=xterm
 
 # 2. Install Dependencies (بدون a_r_i_a_2 نهائي)
 RUN dnf -qq -y update && \
-    dnf -qq -y install git bash xz wget curl pv jq python3-pip mediainfo psmisc procps-ng && \
+    dnf -qq -y install git bash xz wget curl pv jq python3-pip mediainfo psmisc procps-ng gcc python3-devel && \
     python3 -m pip install --upgrade pip setuptools
 
 # 3. Install ffmpeg
