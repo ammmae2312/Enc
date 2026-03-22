@@ -11,7 +11,7 @@ ENV TZ=Africa/Lagos
 ENV TERM=xterm
 
 # 2. Install Dependencies
-RUN dnf -qq -y update && dnf -qq -y install git aria2 bash xz wget curl pv jq python3-pip mediainfo psmisc procps-ng qbittorrent-nox && if [[ $(arch) == 'aarch64' ]]; then   dnf -qq -y install gcc python3-devel; fi && python3 -m pip install --upgrade pip setuptools
+RUN dnf -qq -y update && dnf -qq -y install git bash xz wget curl pv jq python3-pip mediainfo psmisc procps-ng && if [[ $(arch) == 'aarch64' ]]; then   dnf -qq -y install gcc python3-devel; fi && python3 -m pip install --upgrade pip setuptools
 
 # 3. Install latest ffmpeg
 RUN arch=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/64/) && \
