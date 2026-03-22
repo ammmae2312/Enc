@@ -1,7 +1,6 @@
 aiohttp
 anitopy
 apscheduler
-aria2p
 country_converter
 emoji-country-flag
 feedparser
@@ -17,7 +16,6 @@ pymongo[srv]
 pyrogram==2.0.106
 #pyrogram==2.0.73
 python-decouple
-qbittorrent-api
 quote
 random_word
 tzlocal
