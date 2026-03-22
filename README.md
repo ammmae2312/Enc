@@ -49,13 +49,13 @@ peval - same as eval but with pyrogram
 ping - ping!
 add - add video to queue
 leech - add link to queue
-qbleech - add torrent link to queue
+qbleech - add magnet link to queue
 select - select files to encode in a batch
 permit - add a temporary user
 unpermit - removes a temporary user
 queue - list queue
 batch - preview batches
-list - list all files in a torrent
+list - list all files in a magnet
 forward - manually forward a message to fchannel
 v - turn v2,3,4… on (with message) or off
 download - download a file or link to bot

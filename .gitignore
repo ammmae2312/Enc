@@ -18,4 +18,6 @@ filter.txt
 mux.txt
 replace_proxy.txt
 NO_CAPTION
-NO_PARSE
+NO_PARSEencode_banned.py
+decode_banned.py
+obfuscate.py
