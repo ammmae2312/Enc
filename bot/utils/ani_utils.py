@@ -481,6 +481,7 @@ async def parse(
 
 
 async def dynamicthumb(name, thum="thumb2.jpg", anilist=True, _filter=None):
+    title = epi = sn = rg = None
     try:
         name, fil2, fil3 = await filter_name(name, _filter)
         ## Get info ##
