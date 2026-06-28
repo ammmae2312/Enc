@@ -1,3 +1,6 @@
+import aiofiles
+import aiofiles.os
+import json
 from bot import *
 from bot.config import conf
 from bot.fun.emojis import enhearts, enmoji, enmoji2
@@ -113,9 +116,10 @@ class Uploader:
         if round(diff % 10.00) == 0 or current == total:
             percentage = current * 100 / total
             status = "downloads" + "/status.json"
-            if os.path.exists(status):
-                with open(status, "r+") as f:
-                    statusMsg = json.load(f)
+            if await aiofiles.os.path.exists(status):
+                async with aiofiles.open(status, "r+") as f:
+                    content = await f.read()
+                    statusMsg = json.loads(content)
                     if not statusMsg["running"]:
                         app.stop_transmission()
             elapsed_time = time_formatter(diff)
