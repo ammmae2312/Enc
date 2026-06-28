@@ -1,5 +1,4 @@
 import pickle
-import subprocess
 
 from pymongo import MongoClient
 
@@ -28,14 +27,14 @@ if os.path.isdir("/tgenc"):
 LOGS.info("=" * 30)
 
 if conf.THUMB:
-    subprocess.run(["wget", conf.THUMB, "-O", "thumb.jpg"], check=False)
+    os.system(f"wget {conf.THUMB} -O thumb.jpg")
 
 if conf.CUSTOM_RENAME:
     _bot.custom_rename = conf.CUSTOM_RENAME
 
 if conf.DL_STUFF:
     for link in conf.DL_STUFF.split(","):
-        subprocess.run(["wget", link.strip()], check=False)
+        os.system(f"wget {link.strip()}")
 
 if conf.NO_TEMP_PM:
     _bot.temp_only_in_group = True
@@ -87,9 +86,8 @@ for dir_ in dirs:
 
 
 if conf.TEMP_USER:
-    owner_set = set(conf.OWNER.split())
     for t in conf.TEMP_USER.split():
-        if t in owner_set:
+        if t in conf.OWNER.split():
             continue
         if t not in _bot.temp_users:
             _bot.temp_users.append(t)
@@ -106,9 +104,8 @@ def load_db(_db, _key, var, var_type=None):
         return
 
     if var_type == "list":
-        owner_set = set(conf.OWNER.split())
         for item in out.split():
-            if item in owner_set:
+            if item in conf.OWNER.split():
                 continue
             if item not in var:
                 var.append(item)
