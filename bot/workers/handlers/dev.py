@@ -2,6 +2,7 @@ import asyncio
 import html
 import io
 import sys
+import aiofiles
 import traceback
 
 from bot.config import _bot
@@ -175,8 +176,8 @@ async def eval_message_p(message, cmd, client):
 
     if len(final_output) > _bot.max_message_length:
         final_output = "Evaluated:\n{}\n\nOutput:\n{}".format(cmd, evaluation.strip())
-        with open("eval.text", "w+", encoding="utf8") as out_file:
-            out_file.write(str(final_output))
+        async with aiofiles.open("eval.text", "w+", encoding="utf8") as out_file:
+            await out_file.write(str(final_output))
         await message.reply_document(
             document="eval.text",
             caption=cmd,
