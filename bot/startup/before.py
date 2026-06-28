@@ -94,10 +94,8 @@ if conf.TEMP_USER:
 
 
 def load_db(_db, _key, var, var_type=None):
-    queries = _db.find({"_id": bot_id})
-    raw = None
-    for query in queries:
-        raw = query.get(_key)
+    query = _db.find_one({"_id": bot_id}, {_key: 1})
+    raw = query.get(_key) if query else None
 
     if not raw:
         return
