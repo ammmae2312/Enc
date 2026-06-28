@@ -17,16 +17,11 @@ _filter = {"_id": bot_id}
 database = conf.DATABASE_URL
 
 
-async def save2db(db="queue", retries=3):
-    if not database:
-        return await sync_to_async(save2db_lcl)
-    d = {"queue": _bot.queue, "batches": _bot.batch_queue}
-    data = pickle.dumps(d.get(db))
-    _update = {db: data}
+async def _update_db_with_retries(collection, update_data, retries=3):
     while retries:
         try:
             await sync_to_async(
-                queuedb.update_one, _filter, {"$set": _update}, upsert=True
+                collection.update_one, _filter, {"$set": update_data}, upsert=True
             )
             break
         except ServerSelectionTimeoutError as e:
@@ -36,7 +31,16 @@ async def save2db(db="queue", retries=3):
             await asyncio.sleep(0.5)
 
 
-async def save2db2(data: dict | str = False, db: str = None):
+async def save2db(db="queue", retries=3):
+    if not database:
+        return await sync_to_async(save2db_lcl)
+    d = {"queue": _bot.queue, "batches": _bot.batch_queue}
+    data = pickle.dumps(d.get(db))
+    _update = {db: data}
+    await _update_db_with_retries(queuedb, _update, retries)
+
+
+async def save2db2(data: dict | str = False, db: str = None, retries: int = 3):
     if not database:
         if data is False or db == "rss":
             await sync_to_async(save2db_lcl2, db)
@@ -45,20 +49,24 @@ async def save2db2(data: dict | str = False, db: str = None):
         tusers = list_to_str(_bot.temp_users)
         data = pickle.dumps(tusers)
         _update = {"t_users": data}
-        await sync_to_async(userdb.update_one, _filter, {"$set": _update}, upsert=True)
+        await _update_db_with_retries(userdb, _update, retries)
         return
+
     p_data = pickle.dumps(data)
     _update = {db: p_data}
-    if db in ("ffmpeg", "mux_args", "ffmpeg2", "ffmpeg3", "ffmpeg4"):
-        await sync_to_async(
-            ffmpegdb.update_one, _filter, {"$set": _update}, upsert=True
-        )
-        return
-    if db in ("autoname", "cus_rename", "filter"):
-        await sync_to_async(
-            filterdb.update_one, _filter, {"$set": _update}, upsert=True
-        )
-        return
-    if db == "rss":
-        await sync_to_async(rssdb.update_one, _filter, {"$set": _update}, upsert=True)
-        return
+
+    db_mapping = {
+        "ffmpeg": ffmpegdb,
+        "mux_args": ffmpegdb,
+        "ffmpeg2": ffmpegdb,
+        "ffmpeg3": ffmpegdb,
+        "ffmpeg4": ffmpegdb,
+        "autoname": filterdb,
+        "cus_rename": filterdb,
+        "filter": filterdb,
+        "rss": rssdb,
+    }
+
+    collection = db_mapping.get(db)
+    if collection:
+        await _update_db_with_retries(collection, _update, retries)
