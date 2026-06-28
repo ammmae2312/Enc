@@ -159,7 +159,6 @@ async def thing():
             if len(queue) == queue_no:
                 break
             await asyncio.sleep(10)
-        # user = int(OWNER.split()[0])
         queue_id = list(queue.keys())[0]
         chat_id, msg_id = queue_id
         download = None
