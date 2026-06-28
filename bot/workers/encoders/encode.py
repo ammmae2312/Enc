@@ -83,10 +83,6 @@ class Encoder:
         action = "game" if conf.ALLOW_ACTION is True else "cancel"
         async with self.client.action(self.event.chat_id, action):
             com = await self.process.communicate()
-            # while True:
-            # if not await is_running(self.process):
-            # break
-            # await asyncio.sleep(5)
         if self.req_clean:
             decode(self.enc_id, pop=True)
             if self.log_enc_id:
