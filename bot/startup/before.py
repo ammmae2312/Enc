@@ -1,4 +1,5 @@
 import pickle
+import subprocess
 
 from pymongo import MongoClient
 
@@ -27,14 +28,14 @@ if os.path.isdir("/tgenc"):
 LOGS.info("=" * 30)
 
 if conf.THUMB:
-    os.system(f"wget {conf.THUMB} -O thumb.jpg")
+    subprocess.run(["wget", conf.THUMB, "-O", "thumb.jpg"], check=False)
 
 if conf.CUSTOM_RENAME:
     _bot.custom_rename = conf.CUSTOM_RENAME
 
 if conf.DL_STUFF:
     for link in conf.DL_STUFF.split(","):
-        os.system(f"wget {link.strip()}")
+        subprocess.run(["wget", link.strip()], check=False)
 
 if conf.NO_TEMP_PM:
     _bot.temp_only_in_group = True
