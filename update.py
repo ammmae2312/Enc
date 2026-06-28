@@ -38,31 +38,38 @@ def update():
     r_filep = Path("filters/Auto-rename.txt")
     rvars = varsgetter(r_filep)
     update_check = Path("update")
-    cmd = (
-        f"git switch {UPSTREAM_BRANCH} -q \
-        && git pull -q "
-        "&& git reset --hard @{u} -q \
-        && git clean -df -q"
-    )
-    cmd2 = f"git init -q \
-           && git config --global user.email 117080364+Niffy-the-conqueror@users.noreply.github.com \
-           && git config --global user.name Niffy-the-conqueror \
-           && git add . \
-           && git commit -sm update -q \
-           && git remote add origin {UPSTREAM_REPO} \
-           && git fetch origin -q \
-           && git reset --hard origin/{UPSTREAM_BRANCH} -q \
-           && git switch {UPSTREAM_BRANCH} -q"
+    cmds = [
+        ["git", "switch", UPSTREAM_BRANCH, "-q"],
+        ["git", "pull", "-q"],
+        ["git", "reset", "--hard", "@{u}", "-q"],
+        ["git", "clean", "-df", "-q"]
+    ]
+    cmds2 = [
+        ["git", "init", "-q"],
+        ["git", "config", "--global", "user.email", "117080364+Niffy-the-conqueror@users.noreply.github.com"],
+        ["git", "config", "--global", "user.name", "Niffy-the-conqueror"],
+        ["git", "add", "."],
+        ["git", "commit", "-sm", "update", "-q"],
+        ["git", "remote", "add", "origin", UPSTREAM_REPO],
+        ["git", "fetch", "origin", "-q"],
+        ["git", "reset", "--hard", f"origin/{UPSTREAM_BRANCH}", "-q"],
+        ["git", "switch", UPSTREAM_BRANCH, "-q"]
+    ]
 
     if ALWAYS_DEPLOY_LATEST is True or update_check.is_file():
         if UPSTREAM_BRANCH == "main":
-            bashrun(["rm -rf .git"], shell=True)
+            bashrun(["rm", "-rf", ".git"])
         if os.path.exists('.git') and check_output(
-            ["git config --get remote.origin.url"],
-                shell=True).decode().strip() == UPSTREAM_REPO:
-            update = bashrun([cmd], shell=True)
+            ["git", "config", "--get", "remote.origin.url"]).decode().strip() == UPSTREAM_REPO:
+            for c in cmds:
+                update = bashrun(c)
+                if update.returncode != 0:
+                    break
         else:
-            update = bashrun([cmd2], shell=True)
+            for c in cmds2:
+                update = bashrun(c)
+                if update.returncode != 0:
+                    break
         if AUPR:
             bashrun(["pip3", "install", "-r", "requirements.txt"])
         if update.returncode == 0:
