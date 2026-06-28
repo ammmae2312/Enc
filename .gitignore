@@ -1,23 +1,10 @@
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+__pycache__/
+*.py[cod]
+*$py.class
 
-.pytest_cache
-.vscode
-*.jpg
-*.pkl
-*.png
-*.session
-ffmpeg.txt
-filter.txt
-mux.txt
-replace_proxy.txt
-NO_CAPTION
-NO_PARSEencode_banned.py
-decode_banned.py
-obfuscate.py
+# Logs
+Logs.txt
+
+# Environment
+.env
+tele.session
