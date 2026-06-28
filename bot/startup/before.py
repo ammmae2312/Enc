@@ -86,8 +86,9 @@ for dir_ in dirs:
 
 
 if conf.TEMP_USER:
+    owner_set = set(conf.OWNER.split())
     for t in conf.TEMP_USER.split():
-        if t in conf.OWNER.split():
+        if t in owner_set:
             continue
         if t not in _bot.temp_users:
             _bot.temp_users.append(t)
@@ -104,8 +105,9 @@ def load_db(_db, _key, var, var_type=None):
         return
 
     if var_type == "list":
+        owner_set = set(conf.OWNER.split())
         for item in out.split():
-            if item in conf.OWNER.split():
+            if item in owner_set:
                 continue
             if item not in var:
                 var.append(item)
