@@ -15,6 +15,11 @@ from .log_utils import log, logger
 from .os_utils import s_remove
 
 
+def _write_file(path, content):
+    with open(path, "w") as f:
+        f.write(content)
+
+
 def user_is_allowed(user: str | int):
     user = str(user)
     return user in conf.OWNER or user in _bot.temp_users
@@ -388,8 +393,7 @@ async def report_encode_status(
         msg_2_delete = msg_2_delete or msg
         if len(er) > 4095 and not cancelled:
             out_file = f"{exe_prefix}_error.txt"
-            with open(out_file, "w") as file:
-                file.write(er)
+            await asyncio.to_thread(_write_file, out_file, er)
             error = await msg_2_delete.reply(
                 file=out_file,
                 force_document=True,
