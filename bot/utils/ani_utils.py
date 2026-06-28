@@ -145,59 +145,96 @@ async def get_ani_info(title=None, query=anime_query, var=None):
     return info
 
 
+_filter_cache = {
+    "file_filter_raw": None,
+    "file_filter_parsed": None,
+    "release_filter_raw": None,
+    "release_filter_parsed": None,
+    "caption_filter_raw": None,
+    "caption_filter_parsed": None,
+}
+
+
 async def get_cus_tag(fn, rg, caption=False):
     release_tag, file_tag, caption_tag = None, str(), None
     file_filter, release_filter, caption_filter = await text_filter()
-    if release_filter and rg:
-        for item in release_filter.split("\n"):
-            if len(item.split("|")) <= 2:
+
+    if _filter_cache["release_filter_raw"] != release_filter:
+        _filter_cache["release_filter_raw"] = release_filter
+        parsed = []
+        if release_filter:
+            for item in release_filter.split("\n"):
+                parts = item.split("|")
+                if len(parts) > 2:
+                    parsed.append((parts[0], parts[1], parts[2]))
+        _filter_cache["release_filter_parsed"] = parsed
+
+    if _filter_cache["file_filter_raw"] != file_filter:
+        _filter_cache["file_filter_raw"] = file_filter
+        parsed = []
+        if file_filter:
+            for item in file_filter.split("\n"):
+                parts = item.split("|")
+                if len(parts) > 2:
+                    parsed.append((parts[0], parts[1], parts[2]))
+        _filter_cache["file_filter_parsed"] = parsed
+
+    if _filter_cache["caption_filter_raw"] != caption_filter:
+        _filter_cache["caption_filter_raw"] = caption_filter
+        parsed = []
+        if caption_filter:
+            for item in caption_filter.split("\n"):
+                parts = item.split("||", maxsplit=1)
+                if len(parts) >= 2:
+                    sub_parsed = []
+                    for sub_item in parts[1].split("||"):
+                        sub_parts = sub_item.split("|")
+                        if len(sub_parts) >= 2:
+                            sub_parsed.append((sub_parts[0], sub_parts[1]))
+                    parsed.append((parts[0], sub_parsed))
+        _filter_cache["caption_filter_parsed"] = parsed
+    if _filter_cache["release_filter_parsed"] and rg:
+        rg_casefold = rg.casefold()
+        for check, out, out1 in _filter_cache["release_filter_parsed"]:
+            out_val = out1 if caption else out
+            if check.casefold() != rg_casefold:
                 continue
-            check, out, out1 = item.split("|")
-            out = out1 if caption else out
-            if check.casefold() != rg.casefold():
-                continue
-            if out.casefold() == "disable":
+            if out_val.casefold() == "disable":
                 break
-            release_tag = out
+            release_tag = out_val
             break
 
-    if file_filter:
-        for item in file_filter.split("\n"):
-            if len(item.split("|")) <= 2:
-                continue
-            check, out, out1 = item.split("|")
-            out = out1 if caption else out
+    if _filter_cache["file_filter_parsed"]:
+        fn_casefold = fn.casefold()
+        for check, out, out1 in _filter_cache["file_filter_parsed"]:
+            out_val = out1 if caption else out
             if check.startswith("^"):
                 if not check.lstrip("^") in fn:
                     continue
-                if out.casefold() == "disable":
+                if out_val.casefold() == "disable":
                     break
             else:
-                if not check.casefold() in fn.casefold():
+                if not check.casefold() in fn_casefold:
                     continue
-            if out.casefold() == "disable":
+            if out_val.casefold() == "disable":
                 continue
-            file_tag += out
+            file_tag += out_val
             if check.startswith("^"):
                 break
             if not caption:
                 break
             file_tag += " "
 
-    if caption_filter and caption:
-        for item in caption_filter.split("\n"):
-            if len(item.split("||")) < 2:
-                continue
-            _check_r, _check_i = item.split("||", maxsplit=1)
+    if _filter_cache["caption_filter_parsed"] and caption:
+        for _check_r, _check_i in _filter_cache["caption_filter_parsed"]:
             if _check_r != rg:
                 continue
-            for items in _check_i.split("||"):
-                if len(items.split("|")) < 2:
-                    continue
-                check, out = items.split("|")
+            for check, out in _check_i:
                 if check in fn:
                     caption_tag = out
                     break
+            if caption_tag:
+                break
 
     final_output = release_tag
     if caption_tag:
